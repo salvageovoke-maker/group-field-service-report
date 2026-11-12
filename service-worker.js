@@ -1,4 +1,4 @@
-const CACHE_NAME = 'group-field-service-report-field-icons-v5';
+const CACHE_NAME = 'group-field-service-report-v6';
 const APP_SHELL = [
   './',
   './index.html',
@@ -9,32 +9,57 @@ const APP_SHELL = [
   './field-report-apple-touch-icon.png'
 ];
 
+// Cache each file on its own so one missing file can never stop the service worker from installing.
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.all(
+        APP_SHELL.map(url => cache.add(url).catch(error => console.warn('Not cached:', url, error)))
+      ))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-    ))
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  if (new URL(request.url).origin !== self.location.origin) return;
+
+  // Pages: try the network first so updates arrive, fall back to the saved copy when offline.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match('./index.html').then(cached => cached || caches.match('./')))
+    );
+    return;
+  }
+
+  // Everything else: saved copy first, then network.
   event.respondWith(
-    caches.match(event.request).then(cached => {
+    caches.match(request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (response && response.status === 200 && new URL(event.request.url).origin === self.location.origin) {
+      return fetch(request).then(response => {
+        if (response && response.status === 200) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         }
         return response;
-      }).catch(() => caches.match('./index.html'));
+      });
     })
   );
 });

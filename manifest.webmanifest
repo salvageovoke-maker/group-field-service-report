@@ -3,6 +3,7 @@
   "name": "Group Field Service Report",
   "short_name": "Field Report",
   "description": "Group field service reporting and attendance tracker",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -5,7 +5,7 @@ A static Progressive Web App (PWA) prepared for GitHub Pages.
 ## Publish with GitHub Pages
 
 1. Create a GitHub repository, for example `group-field-service-report`.
-2. Upload the contents of this folder to the repository root. Keep `index.html`, `manifest.webmanifest`, `service-worker.js`, and the `assets` folder together.
+2. Upload the contents of this folder to the repository root. Keep `index.html`, `manifest.webmanifest`, `service-worker.js`, and all four `.png` icon files together in the same folder.
 3. In the repository, open **Settings → Pages**.
 4. Under **Build and deployment**, choose **Deploy from a branch**.
 5. Select the `main` branch and `/ (root)`, then save.
