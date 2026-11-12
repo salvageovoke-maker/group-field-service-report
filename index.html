@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#173f35">
+<title>Group Field Service Report</title>
+<style>
+:root{--green:#17483c;--green2:#216653;--mint:#eaf4ef;--ink:#1d2925;--muted:#64736d;--line:#dce6e0;--bg:#f4f7f5;--white:#fff;--gold:#e9b85c;--shadow:0 8px 26px rgba(22,55,43,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#123b32,#24624f);color:#fff;padding:28px max(20px,calc((100% - 1180px)/2)) 30px}
+.header-inner{max-width:1180px;margin:auto}header .eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#c4ddd1;font-weight:700}h1{margin:5px 0 4px;font-size:clamp(24px,4vw,34px);letter-spacing:-.03em}header p{margin:0;color:#d8e8e0}
+main{max-width:1180px;margin:24px auto 60px;padding:0 18px}.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;justify-content:space-between;margin-bottom:18px}.period{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.period label{font-size:12px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px}.period input{width:190px}
+input,select{font:inherit;color:var(--ink);border:1px solid #cfdcd4;border-radius:9px;background:#fff;padding:10px 11px;min-width:0;width:100%;outline:none}
+input:focus,select:focus{border-color:var(--green2);box-shadow:0 0 0 3px rgba(33,102,83,.12)}
+button{font:inherit;border:0;border-radius:9px;padding:10px 15px;cursor:pointer;font-weight:700}.primary{background:var(--green);color:#fff}.secondary{background:#fff;color:var(--green);border:1px solid var(--line)}.danger{background:#fff1ef;color:#a23a2c;border:1px solid #f0d1cb}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.group-tracker{border:1.5px solid #9eaea5;border-radius:12px;background:#fff;padding:12px 14px;margin:0 0 20px}
+.group-tracker-title{display:block;font-size:12px;font-weight:800;color:var(--green);margin-bottom:9px}
+.group-tracker-items{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.group-tracker-item{display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid #d5dfd9;border-radius:9px;padding:9px 6px;font-size:12px;font-weight:700;color:var(--ink)}
+.group-tracker-item input{appearance:none;-webkit-appearance:none;width:17px;height:17px;margin:0;flex:0 0 auto;border:1.5px solid #8b9c92;border-radius:4px;background:#fff;display:inline-grid;place-content:center;pointer-events:none}
+.group-tracker-item input:checked{background:#218653;border-color:#218653}
+.group-tracker-item input:checked::after{content:"";width:8px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg);margin-top:-2px}
+.group-tracker-note{margin:8px 0 0;font-size:11px;color:var(--muted)}
+@media(max-width:520px){.group-tracker-items{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 24px}.metric{background:#fff;border:1.5px solid #9eaea5;border-radius:13px;padding:15px 16px;box-shadow:var(--shadow)}.metric .label{font-size:12px;color:var(--muted);font-weight:700}.metric .value{font-size:27px;font-weight:800;letter-spacing:-.04em;color:var(--green);margin-top:3px}.metric .sub{font-size:11px;color:var(--muted)}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:26px 0 10px}.section-heading h2{font-size:19px;margin:0;letter-spacing:-.02em}.section-heading p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.group-card{background:#fff;border:1.5px solid #879b90;border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}.group-title{background:var(--mint);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}.group-title h3{margin:0;color:var(--green);font-size:16px}.group-total{font-size:11px;color:var(--muted)}
+.group-card:nth-child(1) .group-title{background:#e7efff}.group-card:nth-child(1) .group-title h3{color:#244a86}
+.group-card:nth-child(2) .group-title{background:#e5f4eb}.group-card:nth-child(2) .group-title h3{color:#236044}
+.group-card:nth-child(3) .group-title{background:#fff0df}.group-card:nth-child(3) .group-title h3{color:#92521c}
+.group-card:nth-child(4) .group-title{background:#f3eafd}.group-card:nth-child(4) .group-title h3{color:#68418e}
+.group-card:nth-child(5) .group-title{background:#fde9ec}.group-card:nth-child(5) .group-title h3{color:#963f51}
+.group-card:nth-child(6) .group-title{background:#e1f2f3}.group-card:nth-child(6) .group-title h3{color:#28636a}
+.category{padding:14px 16px 15px;border-top:1px solid var(--line)}.category:first-of-type{border-top:0}.category h4{font-size:13px;margin:0 0 10px;color:#344b41}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px}.field input{text-align:right;padding:9px 8px;font-variant-numeric:tabular-nums}.field.no-hours{grid-column:span 1}
+.totals-wrap{background:#fff;border:1.5px solid #879b90;border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:right;padding:12px 14px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}thead th{background:#f0f5f2;color:#4c5f55;font-size:11px;text-transform:uppercase;letter-spacing:.04em}tbody tr:last-child td{border-bottom:0}tfoot td{background:var(--mint);font-weight:800;color:var(--green)}
+.attendance-card{background:#fff;border:1.5px solid #879b90;border-radius:14px;padding:17px;box-shadow:var(--shadow)}
+.manual-card{background:#fff;border:1.5px solid #879b90;border-radius:14px;padding:17px;box-shadow:var(--shadow)}.manual-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}.manual-form label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px}.manual-form button{min-height:43px}.manual-list{margin-top:15px}.manual-list table{min-width:560px}.manual-list-wrap{overflow-x:auto}.remove-record{padding:5px 9px;font-size:11px}.empty-records{color:var(--muted);font-size:13px;padding:12px 0 0}
+@media(max-width:700px){.manual-form{grid-template-columns:repeat(2,minmax(0,1fr))}}.attendance-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.attendance-grid label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px}.attendance-result{display:flex;gap:18px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:16px;padding-top:14px}.attendance-result .result{min-width:130px}.result span{display:block;color:var(--muted);font-size:12px}.result strong{font-size:23px;color:var(--green)}
+.note{font-size:12px;color:var(--muted);margin:12px 0 0}.status{font-size:12px;color:var(--muted);align-self:center}.footer{margin-top:24px;text-align:center;color:var(--muted);font-size:11px}
+
+
+.app-nav{display:flex;gap:8px;padding:6px;background:#e8efeb;border:1px solid #d2ded7;border-radius:13px;margin:0 0 22px;width:fit-content;max-width:100%}
+.nav-tab{background:transparent;color:#5c7065;padding:11px 20px;border-radius:9px;font-weight:750;display:flex;align-items:center;gap:9px}
+.nav-tab.active{background:#17483c;color:#fff;box-shadow:0 4px 12px rgba(23,72,60,.18)}
+.nav-icon{font-size:17px;line-height:1}
+.app-page{display:none}.app-page.active{display:block}
+.dashboard-hero{position:relative;overflow:hidden;min-height:250px;border-radius:20px;padding:30px 34px;margin-bottom:23px;background:linear-gradient(112deg,#123c34 0%,#17634e 54%,#26836a 100%);color:#fff;box-shadow:0 14px 34px rgba(19,69,54,.19);display:flex;align-items:center;justify-content:space-between}
+.hero-copy{position:relative;z-index:2;max-width:560px}.hero-kicker,.intro-kicker{font-size:10px;letter-spacing:.16em;font-weight:800;color:#b8e3ce}.hero-copy h2{font-size:clamp(25px,4vw,37px);line-height:1.12;letter-spacing:-.04em;margin:10px 0 9px;max-width:490px}.hero-copy p{color:#d7eee3;max-width:470px;margin:0;font-size:14px}
+.hero-actions{display:flex;align-items:center;gap:16px;margin-top:22px;flex-wrap:wrap}.hero-button{background:#fff;color:#17483c;padding:11px 16px;border-radius:9px;font-weight:800}.hero-button span{margin-left:9px;font-size:17px}.hero-month{font-size:11px;color:#d2e9dd}
+.hero-art{position:absolute;right:3%;top:0;width:39%;height:100%;min-width:250px}.hero-orbit{position:absolute;border:1px solid rgba(220,255,236,.19);border-radius:50%;width:260px;height:260px;right:22px;top:-7px}.orbit-two{width:190px;height:190px;right:57px;top:28px;border-color:rgba(255,255,255,.22)}
+.hero-glow{position:absolute;width:190px;height:190px;right:52px;top:30px;border-radius:50%;background:radial-gradient(circle,rgba(159,238,197,.28),rgba(159,238,197,0) 68%)}
+.hero-bars{position:absolute;right:92px;bottom:30px;height:125px;display:flex;align-items:end;gap:10px;z-index:1}.hero-bars i{display:block;width:17px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#d5f6e3,#65b994);opacity:.9}.hero-bars i:nth-child(1){height:36%}.hero-bars i:nth-child(2){height:54%}.hero-bars i:nth-child(3){height:43%}.hero-bars i:nth-child(4){height:72%}.hero-bars i:nth-child(5){height:61%}.hero-bars i:nth-child(6){height:88%}.hero-bars i:nth-child(7){height:100%;background:linear-gradient(180deg,#ffe1a1,#e9b85c)}
+.hero-stat{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(8px);box-shadow:0 8px 20px rgba(0,0,0,.08)}.hero-stat b{font-size:22px;line-height:1.1}.hero-stat small{font-size:9px;color:#d7eee3}.stat-one{right:210px;top:44px}.stat-two{right:20px;top:125px}.stat-dot{width:6px;height:6px;border-radius:50%;background:#8fe0b4;position:absolute;top:9px;right:10px}.stat-dot.gold{background:#ffd17b}
+.dashboard-bottom{margin-top:18px;padding:17px 20px;border-radius:14px;background:linear-gradient(100deg,#e7f3ec,#f3f8f4);border:1px solid #c9ded1;display:flex;align-items:center;justify-content:space-between;gap:14px}.dashboard-bottom strong{color:#17483c}.dashboard-bottom p{margin:3px 0 0;color:#60736a;font-size:12px}
+.page-intro{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(110deg,#eaf4ee,#f8fbf9);border:1px solid #d4e3d9;border-radius:16px;padding:20px 23px;margin-bottom:17px}.page-intro .intro-kicker{color:#36755c}.page-intro h2{font-size:24px;margin:4px 0 2px;color:#17483c}.page-intro p{margin:0;color:#65776d;font-size:13px}.archive-symbol{width:54px;height:54px;display:grid;place-items:center;background:#d5eade;color:#23644c;border-radius:15px;font-size:28px}
+.archive-help{margin-top:16px;padding:14px 16px;background:#f0f5f1;border-radius:12px;color:#53675b;font-size:12px}.archive-help p{margin:4px 0 0}
+@media(max-width:650px){.dashboard-hero{padding:25px 22px;min-height:285px}.hero-art{opacity:.48;right:-60px;width:55%}.hero-copy{max-width:100%}.hero-copy p{max-width:330px}.app-nav{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}.nav-tab{justify-content:center;padding:11px 7px;font-size:13px}.dashboard-bottom{align-items:flex-start;flex-direction:column}.dashboard-bottom button{width:100%}}
+@media print{.app-nav{display:none!important}}
+.dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.dashboard-card,.archive-card,.report-details-card{background:#fff;border:1.5px solid #879b90;border-radius:14px;padding:17px;box-shadow:var(--shadow)}
+.dashboard-card h3{margin:0;font-size:15px}.chart-caption,.archive-note{margin:3px 0 12px;color:var(--muted);font-size:12px}
+.chart-area{display:flex;flex-direction:column;gap:11px;min-height:120px}.chart-row{display:grid;grid-template-columns:75px 1fr 34px;gap:8px;align-items:center;font-size:11px}.chart-label{font-weight:700;color:#40534a}.bar-stack{display:flex;flex-direction:column;gap:4px}.bar-track{height:8px;background:#edf2ef;border-radius:20px;overflow:hidden}.bar-fill{height:100%;border-radius:20px;background:#28765b}.bar-fill.alt{background:#d69a43}.chart-value{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:11px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:#28765b;margin-right:5px}.legend .legend-alt:before{background:#d69a43}
+.archive-controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.archive-controls>div{flex:1;min-width:180px}.archive-controls label,.details-grid label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px}.archive-note{margin:12px 0 0}
+.details-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.details-wide{grid-column:1/-1}.details-grid textarea{font:inherit;width:100%;border:1px solid #cfdcd4;border-radius:9px;padding:10px;resize:vertical}
+.print-report{display:none}
+@media(max-width:800px){.dashboard-grid{grid-template-columns:1fr}.details-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.archive-controls button{flex:1}.details-grid{grid-template-columns:1fr}}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff!important;color:#111}
+  header{background:#fff!important;color:#111;padding:0 0 16px;border-bottom:2px solid #17483c}
+  header .eyebrow,header p{color:#444}
+  main>*:not(#printReport){display:none!important}
+  #printReport{display:block!important}
+  .print-report h1{font-size:22px;margin:0 0 5px}.print-report h2{font-size:15px;margin:18px 0 7px;color:#17483c}
+  .print-report .print-meta{font-size:11px;color:#444;margin-bottom:14px}
+  .print-report table{width:100%;border-collapse:collapse;border:1px solid #b9c7bf;font-size:10px}
+  .print-report th,.print-report td{border:1px solid #b9c7bf!important;padding:6px;text-align:left}
+  .print-report tbody tr:last-child td{border-bottom:1px solid #b9c7bf!important}
+  .print-report th{background:#edf3ef!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-report .print-notes{white-space:pre-wrap;border:1px solid #b9c7bf;padding:8px;font-size:11px}
+  .print-attendance{break-before:auto;page-break-before:auto}
+  .print-attendance h2:first-child{break-before:page;page-break-before:always}
+}
+@media(max-width:800px){.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.group-grid{grid-template-columns:1fr}}
+@media(max-width:480px){main{padding:0 12px}.fields{gap:7px}.field label{font-size:10px}.field input{font-size:14px;padding:9px 5px}.category{padding:12px}.group-title{padding:11px 12px}.attendance-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-grid .field:last-child{grid-column:span 2}.toolbar{align-items:stretch}.actions{width:100%}.actions button{flex:1}.metric{padding:12px}.metric .value{font-size:23px}}
+</style>
+
+  <meta name="theme-color" content="#064341">
+  <meta name="description" content="Monthly group field service reporting, attendance tracking and report archive.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="field-report-icon-192.png">
+  <link rel="apple-touch-icon" href="field-report-apple-touch-icon.png">
+
+</head>
+<body>
+<header><div class="header-inner"><div class="eyebrow">Monthly reporting worksheet</div><h1>Group Field Service Report</h1><p>Enter each group's activity figures and view the combined totals automatically.</p></div></header>
+<main>
+  <nav class="app-nav" aria-label="Main navigation">
+    <button class="nav-tab active" type="button" data-page="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+    <button class="nav-tab" type="button" data-page="reports"><span class="nav-icon">▤</span>Reports</button>
+    <button class="nav-tab" type="button" data-page="archive"><span class="nav-icon">◷</span>Archive</button>
+  </nav>
+  <section class="app-page active" id="page-dashboard" data-page-panel="dashboard">
+    <div class="dashboard-hero">
+      <div class="hero-copy">
+        <div class="hero-kicker">MONTHLY FIELD SERVICE OVERVIEW</div>
+        <h2>Good reporting starts with a clear picture.</h2>
+        <p>Track group activity, review key figures and monitor progress across your congregation.</p>
+        <div class="hero-actions"><button class="hero-button" type="button" data-go-page="reports">Open monthly report <span>→</span></button><span class="hero-month" id="dashboardMonthLabel">Current reporting period</span></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+        <div class="hero-stat stat-one"><span class="stat-dot"></span><b>6</b><small>Groups</small></div>
+        <div class="hero-stat stat-two"><span class="stat-dot gold"></span><b>3</b><small>Categories</small></div>
+        <div class="hero-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="hero-glow"></div>
+      </div>
+    </div>
+  <div class="section-heading"><div><h2>At a glance</h2><p>Combined figures across all six groups.</p></div></div>
+  <div class="summary-grid" id="summaryCards">
+    <div class="metric"><div class="label">Total reports</div><div class="value" id="sum-total-reports">0</div><div class="sub">Publishers and all pioneers</div></div>
+    <div class="metric"><div class="label">Auxiliary pioneer hours</div><div class="value" id="sum-aux-hours">0</div><div class="sub">All six groups</div></div>
+    <div class="metric"><div class="label">Regular pioneer hours</div><div class="value" id="sum-reg-hours">0</div><div class="sub">All six groups</div></div>
+    <div class="metric"><div class="label">Average meeting attendance</div><div class="value" id="sum-att-average">0</div><div class="sub">Five weekly records</div></div>
+  </div>
+  <div class="section-heading"><div><h2>Activity dashboard</h2><p>Compare group activity and review month-to-month progress.</p></div></div>
+  <div class="dashboard-grid">
+    <section class="dashboard-card"><h3>Group comparison</h3><p class="chart-caption">Reports and Bible studies by group</p><div id="groupChart" class="chart-area"></div></section>
+    <section class="dashboard-card"><h3>Monthly trends</h3><p class="chart-caption">Combined reports and average attendance from saved months</p><div id="trendChart" class="chart-area"></div></section>
+  </div>
+  <div class="section-heading"><div><h2>Report details</h2><p>These details appear on your printable monthly report.</p></div></div>
+  <div class="report-details-card">
+    <div class="details-grid">
+      <div><label for="congregationName">Congregation / organisation</label><input id="congregationName" type="text" placeholder="Enter congregation name"></div>
+      <div><label for="preparedBy">Prepared by</label><input id="preparedBy" type="text" placeholder="Name"></div>
+      <div><label for="approvedBy">Approved by</label><input id="approvedBy" type="text" placeholder="Name"></div>
+      <div class="details-wide"><label for="reportNotes">Comments / observations</label><textarea id="reportNotes" rows="3" placeholder="Add relevant comments or observations"></textarea></div>
+    </div>
+  </div>
+
+    <div class="dashboard-bottom">
+      <div><strong>Keep your records up to date</strong><p>Enter your group's figures and meeting attendance in the Reports section.</p></div>
+      <button class="primary" type="button" data-go-page="reports">Enter report figures →</button>
+    </div>
+  </section>
+  <section class="app-page" id="page-reports" data-page-panel="reports">
+  <div class="toolbar">
+    <div class="period"><div><label for="reportMonth">Reporting month</label><input id="reportMonth" type="month"></div><div class="status" id="saveStatus" aria-live="polite">Your entries save automatically on this device.</div></div>
+    <div class="actions"><button class="primary" id="saveThisMonthBtn" type="button">Save this month</button><button class="secondary" id="exportExcelBtn">Export Excel</button><button class="secondary" id="exportBtn">Export CSV</button><button class="secondary" id="printBtn">Generate PDF</button><button class="danger" id="resetBtn">Clear entries</button></div>
+  </div>
+  <div class="group-tracker" aria-label="Group record status">
+    <span class="group-tracker-title">Group records received</span>
+    <div class="group-tracker-items">
+      <label class="group-tracker-item" for="groupStatus1"><input type="checkbox" id="groupStatus1"><span>Group 1</span></label><label class="group-tracker-item" for="groupStatus2"><input type="checkbox" id="groupStatus2"><span>Group 2</span></label><label class="group-tracker-item" for="groupStatus3"><input type="checkbox" id="groupStatus3"><span>Group 3</span></label><label class="group-tracker-item" for="groupStatus4"><input type="checkbox" id="groupStatus4"><span>Group 4</span></label><label class="group-tracker-item" for="groupStatus5"><input type="checkbox" id="groupStatus5"><span>Group 5</span></label><label class="group-tracker-item" for="groupStatus6"><input type="checkbox" id="groupStatus6"><span>Group 6</span></label>
+    </div>
+    <p class="group-tracker-note">A group is checked when at least one of its activity fields contains a value.</p>
+  </div>
+  <div class="section-heading"><div><h2>Group activity entries</h2><p>Enter whole numbers or decimals where applicable. Leave fields blank when a group has no record to report.</p></div></div>
+  <div class="group-grid" id="groups"></div>
+
+  <div class="section-heading"><div><h2>Additional manual records</h2><p>Add an extra figure directly to the combined category totals without assigning it to a group.</p></div></div>
+  <div class="manual-card">
+    <div class="manual-form">
+      <div><label for="manualCategory">Category</label><select id="manualCategory"><option value="pub">Publishers</option><option value="aux">Auxiliary Pioneers</option><option value="reg">Regular Pioneers</option></select></div>
+      <div><label for="manualFigure">Figure to enter</label><select id="manualFigure"></select></div>
+      <div><label for="manualValue">Amount</label><input id="manualValue" type="number" min="0" step="any" inputmode="decimal" placeholder="Enter amount"></div>
+      <button class="primary" id="addManualRecord" type="button">Add record</button>
+    </div>
+    <div class="manual-list" id="manualRecordsList" aria-live="polite"></div>
+    <p class="note">Each added record is included directly in the selected category's combined total, without changing any group figures. You can remove a record if it was entered incorrectly.</p>
+  </div>
+
+  <div class="section-heading"><div><h2>Combined category totals</h2><p>Totals update as you enter or change figures.</p></div></div>
+  <div class="totals-wrap"><table>
+    <thead><tr><th>Category</th><th>Number of reports</th><th>Hours</th><th>Bible studies</th></tr></thead>
+    <tbody>
+      <tr><td>Publishers</td><td id="total-pub-reports">0</td><td>Not collected</td><td id="total-pub-studies">0</td></tr>
+      <tr><td>Auxiliary Pioneers</td><td id="total-aux-reports">0</td><td id="total-aux-hours">0</td><td id="total-aux-studies">0</td></tr>
+      <tr><td>Regular Pioneers</td><td id="total-reg-reports">0</td><td id="total-reg-hours">0</td><td id="total-reg-studies">0</td></tr>
+    </tbody>
+  </table></div>
+
+
+  <div class="section-heading"><div><h2>Weekend meeting attendance</h2><p>Enter the attendance for each of the five weekly meetings.</p></div></div>
+  <div class="attendance-card"><div class="attendance-grid" id="attendanceFields"></div>
+    <div class="attendance-result"><div class="result"><span>Total attendance</span><strong id="attendanceTotal">0</strong></div><div class="result"><span>Average attendance</span><strong id="attendanceAverage">0</strong></div></div>
+    <p class="note">Average attendance is calculated using only weeks with an entered value. For example, if four weeks are filled, the total is divided by four. An entered zero counts as a populated week.</p>
+  </div>
+  </section>
+<section class="app-page" id="page-archive" data-page-panel="archive">
+    <div class="page-intro"><div><span class="intro-kicker">REPORT LIBRARY</span><h2>Monthly archive</h2><p>Open, review or reuse reports saved on this device.</p></div><div class="archive-symbol">▤</div></div>
+  <div class="section-heading"><div><h2>Monthly report archive</h2><p>Reports are saved in this browser. Select a month to review or continue editing it.</p></div></div>
+  <div class="archive-card">
+    <div class="archive-controls">
+      <div><label for="archiveMonth">Saved reports</label><select id="archiveMonth"><option value="">No archived months yet</option></select></div>
+      <button class="primary" id="openArchiveBtn" type="button">Open selected month</button>
+      <button class="secondary" id="duplicateArchiveBtn" type="button">Copy selected month into current month</button>
+      <button class="danger" id="deleteArchiveBtn" type="button">Delete selected report</button>
+    </div>
+    <div class="archive-note" id="archiveStatus" aria-live="polite">Each month is stored separately on this device.</div>
+  </div>
+    <div class="archive-help"><strong>About your archive</strong><p>The archive keeps saved monthly snapshots. Clearing current entries does not delete or change saved archive reports. Export regular backups before moving devices.</p></div>
+  </section>
+  <div class="footer">Data and monthly archives are stored in this browser on this device. Export Excel or CSV backups regularly before clearing browser data or moving to another device.</div>
+  <section id="printReport" class="print-report" aria-hidden="true"></section>
+</main>
+<script>
+(() => {
+  const groupsRoot = document.getElementById('groups');
+  const attendanceRoot = document.getElementById('attendanceFields');
+  const manualRecords = [];
+  let nextManualId = 1;
+  const monthInput = document.getElementById('reportMonth');
+  const storageKey = 'groupFieldServiceReport.v1';
+  const draftsKey = 'groupFieldServiceReport.drafts.v1';
+  const archiveKey = 'groupFieldServiceReport.archive.v1';
+  let activeMonth = monthInput.value;
+  const categories = [
+    {key:'pub', title:'Publishers', fields:[['reports','Number of Reports'],['studies','Bible Studies']]},
+    {key:'aux', title:'Auxiliary Pioneers', fields:[['reports','Number of Reports'],['hours','Hours'],['studies','Bible Studies']]},
+    {key:'reg', title:'Regular Pioneers', fields:[['reports','Number of Reports'],['hours','Hours'],['studies','Bible Studies']]}
+  ];
+  const number = value => {
+    const n = Number(value);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  };
+  const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
+  const makeInput = (id, label, value='') => {
+    const wrap = document.createElement('div');
+    wrap.className = 'field';
+    const lab = document.createElement('label');
+    lab.htmlFor = id; lab.textContent = label;
+    const input = document.createElement('input');
+    input.id = id; input.type = 'number'; input.min = '0'; input.step = 'any'; input.inputMode = 'decimal'; input.value = value;
+    input.addEventListener('input', () => { calculate(); save(); });
+    wrap.append(lab,input);
+    return wrap;
+  };
+  for (let g=1; g<=6; g++) {
+    const card = document.createElement('section');
+    card.className = 'group-card';
+    const heading = document.createElement('div');
+    heading.className = 'group-title';
+    heading.innerHTML = `<h3>Group ${g}</h3><span class="group-total" id="group-${g}-summary">0 reports</span>`;
+    card.append(heading);
+    categories.forEach(cat => {
+      const section = document.createElement('div');
+      section.className = 'category';
+      const h = document.createElement('h4'); h.textContent = cat.title; section.append(h);
+      const fields = document.createElement('div'); fields.className = 'fields';
+      cat.fields.forEach(([field,label]) => fields.append(makeInput(`g${g}-${cat.key}-${field}`,label)));
+      section.append(fields); card.append(section);
+    });
+    groupsRoot.append(card);
+  }
+  for (let w=1; w<=5; w++) attendanceRoot.append(makeInput(`week-${w}`,`Week ${w}`,''));
+  monthInput.value = new Date().toISOString().slice(0,7);
+  function getTotals() {
+    const totals = {pub:{reports:0,studies:0},aux:{reports:0,hours:0,studies:0},reg:{reports:0,hours:0,studies:0}};
+    for (let g=1;g<=6;g++) for (const cat of categories) for (const [field] of cat.fields) {
+      totals[cat.key][field] += number(document.getElementById(`g${g}-${cat.key}-${field}`).value);
+    }
+    manualRecords.forEach(record => { totals[record.category][record.field] += number(record.value); });
+    return totals;
+  }
+  function calculate() {
+    const t = getTotals();
+    for (const cat of categories) for (const [field] of cat.fields) {
+      const el = document.getElementById(`total-${cat.key}-${field}`);
+      if (el) el.textContent = fmt(t[cat.key][field]);
+    }
+    document.getElementById('sum-total-reports').textContent = fmt(t.pub.reports + t.aux.reports + t.reg.reports);
+    document.getElementById('sum-aux-hours').textContent = fmt(t.aux.hours);
+    document.getElementById('sum-reg-hours').textContent = fmt(t.reg.hours);
+    for(let g=1;g<=6;g++){
+      const hasRecord=categories.some(cat=>cat.fields.some(([field])=>{
+        const input=document.getElementById(`g${g}-${cat.key}-${field}`);
+        return input && input.value.trim()!=='';
+      }));
+      document.getElementById(`groupStatus${g}`).checked=hasRecord;
+      let reports=0;
+      for(const cat of categories) reports += number(document.getElementById(`g${g}-${cat.key}-reports`).value);
+      document.getElementById(`group-${g}-summary`).textContent = `${fmt(reports)} reports`;
+    }
+    const attendanceInputs = Array.from({length:5},(_,i)=>document.getElementById(`week-${i+1}`));
+    const populatedAttendance = attendanceInputs.filter(input => input.value.trim() !== '').map(input => number(input.value));
+    const total = populatedAttendance.reduce((a,b)=>a+b,0);
+    const average = populatedAttendance.length ? total/populatedAttendance.length : 0;
+    document.getElementById('attendanceTotal').textContent=fmt(total);
+    document.getElementById('attendanceAverage').textContent=fmt(average);
+    document.getElementById('sum-att-average').textContent=fmt(average);
+    renderCharts();
+  }
+  function collect() {
+    const data={month:monthInput.value,groups:{},attendance:[]};
+    for(let g=1;g<=6;g++){
+      data.groups[g]={};
+      for(const cat of categories){
+        data.groups[g][cat.key]={};
+        for(const [field] of cat.fields) data.groups[g][cat.key][field]=document.getElementById(`g${g}-${cat.key}-${field}`).value;
+      }
+    }
+    data.attendance=Array.from({length:5},(_,i)=>document.getElementById(`week-${i+1}`).value);
+    data.manualRecords=manualRecords;
+    data.details={congregation:document.getElementById('congregationName').value,preparedBy:document.getElementById('preparedBy').value,approvedBy:document.getElementById('approvedBy').value,notes:document.getElementById('reportNotes').value};
+    return data;
+  }
+  function getArchive() {
+    try { return JSON.parse(localStorage.getItem(archiveKey) || '{}') || {}; }
+    catch(e) { return {}; }
+  }
+  function refreshArchiveList(selectMonth=monthInput.value) {
+    const archive=getArchive(), select=document.getElementById('archiveMonth');
+    const months=Object.keys(archive).filter(key=>archive[key] && typeof archive[key]==='object').sort().reverse();
+    select.innerHTML='';
+    if(!months.length) {
+      const option=document.createElement('option'); option.value=''; option.textContent='No archived months yet'; select.append(option);
+      return;
+    }
+    months.forEach(month=>{
+      const option=document.createElement('option'); option.value=month; option.textContent=month; select.append(option);
+    });
+    if(months.includes(selectMonth)) select.value=selectMonth;
+  }
+  function getDrafts() {
+    try { return JSON.parse(localStorage.getItem(draftsKey) || '{}') || {}; }
+    catch(e) { return {}; }
+  }
+  function saveDraftForMonth(month) {
+    if(!month) return;
+    const data=collect();
+    data.month=month;
+    const drafts=getDrafts();
+    drafts[month]=data;
+    localStorage.setItem(draftsKey,JSON.stringify(drafts));
+    // Keep the original single-draft key for backward compatibility.
+    localStorage.setItem(storageKey,JSON.stringify(data));
+  }
+  function save() {
+    try {
+      const data=collect();
+      const drafts=getDrafts();
+      drafts[data.month]=data;
+      localStorage.setItem(draftsKey,JSON.stringify(drafts));
+      localStorage.setItem(storageKey,JSON.stringify(data));
+      activeMonth=data.month;
+      document.getElementById('saveStatus').textContent='Draft saved on this device';
+      renderCharts();
+    } catch(e) {
+      document.getElementById('saveStatus').textContent='Could not save. Browser storage may be full or unavailable.';
+    }
+  }
+  function deleteArchivedMonth() {
+    const select=document.getElementById('archiveMonth');
+    const month=select.value;
+    const archive=getArchive();
+    if(!month || !archive[month]) {
+      document.getElementById('archiveStatus').textContent='Select an archived report to delete.';
+      return;
+    }
+    if(!confirm(`Permanently delete the archived report for ${month}? Your working draft for this month will not be deleted.`)) return;
+    delete archive[month];
+    localStorage.setItem(archiveKey,JSON.stringify(archive));
+    refreshArchiveList(monthInput.value);
+    document.getElementById('archiveStatus').textContent=`Archived report for ${month} has been deleted. Any separate working draft has been kept.`;
+    renderCharts();
+  }
+  function saveCurrentMonthToArchive() {
+    try {
+      const data=collect();
+      if(!data.month) {
+        alert('Select a reporting month before saving to the archive.');
+        return;
+      }
+      const archive=getArchive();
+      archive[data.month]=data;
+      localStorage.setItem(archiveKey,JSON.stringify(archive));
+      refreshArchiveList(data.month);
+      document.getElementById('saveStatus').textContent='Monthly report saved to Archive';
+      document.getElementById('archiveStatus').textContent=`${data.month} has been saved to the archive. Your current entries remain open and unchanged.`;
+      renderCharts();
+      alert(`Report for ${data.month} has been saved to Archive. Your current entries have not been cleared.`);
+    } catch(e) {
+      document.getElementById('saveStatus').textContent='Could not save to Archive. Browser storage may be full or unavailable.';
+      alert('The report could not be saved. Please export a backup and check available browser storage.');
+    }
+  }
+  function applyData(data) {
+    for(let g=1;g<=6;g++) for(const cat of categories) for(const [field] of cat.fields) {
+      const value=data?.groups?.[g]?.[cat.key]?.[field];
+      document.getElementById(`g${g}-${cat.key}-${field}`).value=(value===undefined || value==='' || Number(value)===0)?'':value;
+    }
+    for(let i=0;i<5;i++) document.getElementById(`week-${i+1}`).value=data?.attendance?.[i] ?? '';
+    manualRecords.length=0;
+    (data?.manualRecords||[]).forEach(record=>{
+      if(['pub','aux','reg'].includes(record.category) && categories.find(cat=>cat.key===record.category)?.fields.some(([field])=>field===record.field)) {
+        manualRecords.push({...record,id:nextManualId++});
+      }
+    });
+    const details=data?.details||{};
+    document.getElementById('congregationName').value=details.congregation||'';
+    document.getElementById('preparedBy').value=details.preparedBy||'';
+    document.getElementById('approvedBy').value=details.approvedBy||'';
+    document.getElementById('reportNotes').value=details.notes||'';
+    renderManualRecords();
+    calculate();
+  }
+  function loadMonth(month, openArchivedSnapshot=false) {
+    const archive=getArchive();
+    const drafts=getDrafts();
+    let data=openArchivedSnapshot ? (archive[month]||null) : (drafts[month]||archive[month]||null);
+    monthInput.value=month;
+    activeMonth=month;
+    applyData(data||{});
+    document.getElementById('archiveStatus').textContent=data ? (openArchivedSnapshot ? `Loaded archived snapshot for ${month}.` : `Loaded your saved working report for ${month}.`) : `No saved report for ${month}. A blank report is ready.`;
+    refreshArchiveList(month);
+    save();
+  }
+  function load() {
+    const currentMonth=monthInput.value;
+    let data=getDrafts()[currentMonth]||null;
+    if(!data) {
+      try {
+        const legacyDraft=JSON.parse(localStorage.getItem(storageKey)||'null');
+        if(legacyDraft && legacyDraft.month===currentMonth) data=legacyDraft;
+      } catch(e) {}
+    }
+    if(!data) data=getArchive()[currentMonth]||null;
+    activeMonth=currentMonth;
+    applyData(data||{});
+    refreshArchiveList(currentMonth);
+    if(data) document.getElementById('archiveStatus').textContent=`Loaded saved report for ${currentMonth}.`;
+  }
+  function updateManualFigureOptions() {
+    const category = categories.find(cat=>cat.key===document.getElementById('manualCategory').value);
+    const figureSelect = document.getElementById('manualFigure');
+    figureSelect.innerHTML = '';
+    category.fields.forEach(([field,label])=>{
+      const option=document.createElement('option'); option.value=field; option.textContent=label; figureSelect.append(option);
+    });
+  }
+  function renderManualRecords() {
+    const root=document.getElementById('manualRecordsList');
+    root.innerHTML='';
+    if(!manualRecords.length) {
+      const empty=document.createElement('div'); empty.className='empty-records'; empty.textContent='No additional records have been added.'; root.append(empty); return;
+    }
+    const wrap=document.createElement('div'); wrap.className='manual-list-wrap';
+    const table=document.createElement('table');
+    table.innerHTML='<thead><tr><th>Category</th><th>Figure</th><th>Amount</th><th>Action</th></tr></thead>';
+    const body=document.createElement('tbody');
+    manualRecords.forEach(record=>{
+      const row=document.createElement('tr');
+      const category=categories.find(cat=>cat.key===record.category);
+      const fieldLabel=category.fields.find(([field])=>field===record.field)[1];
+      [ category.title, fieldLabel, fmt(number(record.value)) ].forEach(value=>{
+        const cell=document.createElement('td'); cell.textContent=value; row.append(cell);
+      });
+      const actionCell=document.createElement('td');
+      const remove=document.createElement('button'); remove.type='button'; remove.className='danger remove-record'; remove.textContent='Remove';
+      remove.addEventListener('click',()=>{
+        const index=manualRecords.findIndex(item=>item.id===record.id);
+        if(index!==-1) manualRecords.splice(index,1);
+        renderManualRecords(); calculate(); save();
+      });
+      actionCell.append(remove); row.append(actionCell); body.append(row);
+    });
+    table.append(body); wrap.append(table); root.append(wrap);
+  }
+  document.getElementById('manualCategory').addEventListener('change',updateManualFigureOptions);
+  document.getElementById('addManualRecord').addEventListener('click',()=>{
+    const category=document.getElementById('manualCategory').value;
+    const field=document.getElementById('manualFigure').value;
+    const valueInput=document.getElementById('manualValue');
+    if(valueInput.value.trim()==='' || !Number.isFinite(Number(valueInput.value)) || Number(valueInput.value)<0) {
+      alert('Enter a valid amount of zero or greater.'); valueInput.focus(); return;
+    }
+    manualRecords.push({id:nextManualId++,category,field,value:valueInput.value});
+    valueInput.value='';
+    renderManualRecords(); calculate(); save();
+  });
+
+
+  function showPage(page) {
+    document.querySelectorAll('[data-page-panel]').forEach(panel=>panel.classList.toggle('active',panel.dataset.pagePanel===page));
+    document.querySelectorAll('.nav-tab').forEach(tab=>{
+      const active=tab.dataset.page===page;
+      tab.classList.toggle('active',active);
+      tab.setAttribute('aria-current',active?'page':'false');
+    });
+    if(page==='dashboard') renderCharts();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('.nav-tab').forEach(tab=>tab.addEventListener('click',()=>showPage(tab.dataset.page)));
+  document.querySelectorAll('[data-go-page]').forEach(button=>button.addEventListener('click',()=>showPage(button.dataset.goPage)));
+  function updateDashboardMonthLabel() {
+    const value=monthInput.value;
+    if(!value) return;
+    const date=new Date(value+'-01T12:00:00');
+    document.getElementById('dashboardMonthLabel').textContent=date.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  }
+
+  function renderCharts() {
+    const groupRoot=document.getElementById('groupChart');
+    const trendRoot=document.getElementById('trendChart');
+    if(!groupRoot || !trendRoot) return;
+    groupRoot.innerHTML='';
+    const groupValues=[];
+    for(let g=1;g<=6;g++) {
+      let reports=0,studies=0;
+      categories.forEach(cat=>{
+        reports+=number(document.getElementById(`g${g}-${cat.key}-reports`).value);
+        studies+=number(document.getElementById(`g${g}-${cat.key}-studies`).value);
+      });
+      groupValues.push({name:`Group ${g}`,reports,studies});
+    }
+    const max=Math.max(1,...groupValues.flatMap(v=>[v.reports,v.studies]));
+    groupValues.forEach(v=>{
+      const row=document.createElement('div'); row.className='chart-row';
+      const label=document.createElement('div'); label.className='chart-label'; label.textContent=v.name;
+      const stack=document.createElement('div'); stack.className='bar-stack';
+      [['reports',v.reports,''],['studies',v.studies,'alt']].forEach(([key,val,cls])=>{
+        const track=document.createElement('div'); track.className='bar-track';
+        const fill=document.createElement('div'); fill.className=`bar-fill ${cls}`; fill.style.width=`${(val/max)*100}%`; track.append(fill); stack.append(track);
+      });
+      const value=document.createElement('div'); value.className='chart-value'; value.textContent=fmt(v.reports);
+      row.append(label,stack,value); groupRoot.append(row);
+    });
+    const legend=document.createElement('div'); legend.className='legend';
+    legend.innerHTML='<span>Reports</span><span class="legend-alt">Bible studies</span>'; groupRoot.append(legend);
+
+    trendRoot.innerHTML='';
+    const archive=getArchive(), months=Object.keys(archive).sort().slice(-6);
+    if(monthInput.value && archive[monthInput.value] && !months.includes(monthInput.value)) months.push(monthInput.value);
+    if(!months.length) {
+      const msg=document.createElement('div'); msg.className='empty-records'; msg.textContent='Save monthly reports to build your trend chart.'; trendRoot.append(msg); return;
+    }
+    const trend=months.map(month=>{
+      const data=archive[month]||collect();
+      let reports=0;
+      categories.forEach(cat=>data.groups && Object.values(data.groups).forEach(group=>{reports+=number(group?.[cat.key]?.reports);}));
+      (data.manualRecords||[]).forEach(r=>{if(r.field==='reports')reports+=number(r.value);});
+      const att=(data.attendance||[]).filter(v=>String(v??'').trim()!=='').map(number);
+      return {month,reports,average:att.length?att.reduce((a,b)=>a+b,0)/att.length:0};
+    });
+    const maxReports=Math.max(1,...trend.map(x=>x.reports));
+    trend.forEach(v=>{
+      const row=document.createElement('div'); row.className='chart-row'; row.style.gridTemplateColumns='76px 1fr 38px';
+      const label=document.createElement('div'); label.className='chart-label'; label.textContent=v.month;
+      const track=document.createElement('div'); track.className='bar-track'; track.style.height='12px';
+      const fill=document.createElement('div'); fill.className='bar-fill'; fill.style.height='12px'; fill.style.width=`${(v.reports/maxReports)*100}%`; track.append(fill);
+      const value=document.createElement('div'); value.className='chart-value'; value.textContent=fmt(v.reports);
+      row.append(label,track,value); trendRoot.append(row);
+    });
+    const note=document.createElement('div'); note.className='chart-caption'; note.textContent='Average attendance by month: '+trend.map(v=>`${v.month}: ${fmt(v.average)}`).join(' · ');
+    trendRoot.append(note);
+  }
+  function buildReportRows() {
+    const t=getTotals();
+    const attendance=Array.from({length:5},(_,i)=>document.getElementById(`week-${i+1}`).value.trim()===''?null:number(document.getElementById(`week-${i+1}`).value));
+    const entered=attendance.filter(v=>v!==null), totalAttendance=entered.reduce((a,b)=>a+b,0);
+    const rows=[['Group','Category','Number of Reports','Hours','Bible Studies']];
+    for(let g=1;g<=6;g++) for(const cat of categories) {
+      const get=field=>document.getElementById(`g${g}-${cat.key}-${field}`).value;
+      rows.push([`Group ${g}`,cat.title,get('reports'),cat.key==='pub'?'':get('hours'),get('studies')]);
+    }
+    rows.push(['Manual entries','Publishers',t.pub.reports,'',t.pub.studies],['Manual entries','Auxiliary Pioneers',t.aux.reports,t.aux.hours,t.aux.studies],['Manual entries','Regular Pioneers',t.reg.reports,t.reg.hours,t.reg.studies]);
+    rows.push(['COMBINED TOTALS','Publishers',t.pub.reports,'',t.pub.studies],['COMBINED TOTALS','Auxiliary Pioneers',t.aux.reports,t.aux.hours,t.aux.studies],['COMBINED TOTALS','Regular Pioneers',t.reg.reports,t.reg.hours,t.reg.studies]);
+    rows.push([],['Weekend meeting attendance','Attendance'],...attendance.map((v,i)=>[`Week ${i+1}`,v===null?'':v]),['Total attendance',totalAttendance],['Weeks populated',entered.length],['Average attendance',entered.length?totalAttendance/entered.length:0]);
+    return rows;
+  }
+  function preparePrintReport() {
+    const details=collect().details, rows=buildReportRows();
+    const root=document.getElementById('printReport');
+    const safe=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const makeTable=(tableRows)=>tableRows.map((row,i)=>'<tr>'+row.map(cell=>`<${i===0?'th':'td'}>${safe(cell)}</${i===0?'th':'td'}>`).join('')+'</tr>').join('');
+    const attendanceStart=rows.findIndex(row=>row[0]==='Weekend meeting attendance');
+    const activityRows=rows.slice(0,attendanceStart).filter(row=>row.length);
+    const attendanceRows=rows.slice(attendanceStart).filter(row=>row.length);
+    root.innerHTML=`<h1>Group Field Service Report</h1><div class="print-meta"><strong>Reporting month:</strong> ${safe(monthInput.value)}<br><strong>Congregation / organisation:</strong> ${safe(details.congregation||'Not specified')}<br><strong>Prepared by:</strong> ${safe(details.preparedBy||'Not specified')} &nbsp; <strong>Approved by:</strong> ${safe(details.approvedBy||'Not specified')}</div><section class="print-activity"><h2>Group activity and combined totals</h2><table>${makeTable(activityRows)}</table></section><section class="print-attendance"><h2>Weekly meeting attendance</h2><table>${makeTable([['Week','Attendance'],...attendanceRows.slice(1)])}</table><h2>Comments / observations</h2><div class="print-notes">${safe(details.notes||'No comments entered.')}</div></section>`;
+  }
+  function exportExcel() {
+    const rows=[['GROUP FIELD SERVICE REPORT'],['Reporting month',monthInput.value],['Congregation / organisation',document.getElementById('congregationName').value],[],...buildReportRows()];
+    const xmlEscape=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const sheetRows=rows.map(row=>'<Row>'+row.map(value=>{
+      const numeric=value!=='' && value!==null && value!==undefined && Number.isFinite(Number(value));
+      return `<Cell><Data ss:Type="${numeric?'Number':'String'}">${xmlEscape(value)}</Data></Cell>`;
+    }).join('')+'</Row>').join('');
+    const workbook=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Monthly Report"><Table>${sheetRows}</Table></Worksheet></Workbook>`;
+    const blob=new Blob([workbook],{type:'application/vnd.ms-excel;charset=utf-8;'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download=`Group_Field_Service_Report_${monthInput.value||'report'}.xls`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  document.getElementById('exportExcelBtn').addEventListener('click',exportExcel);
+  document.getElementById('printBtn').addEventListener('click',()=>{preparePrintReport();window.print();});
+  document.getElementById('duplicateArchiveBtn').addEventListener('click',()=>{
+    const sourceMonth=document.getElementById('archiveMonth').value;
+    const targetMonth=monthInput.value;
+    const sourceData=getArchive()[sourceMonth];
+    if(!sourceMonth || !sourceData){alert('Select a saved month to copy.');return;}
+    if(!targetMonth){alert('Select the reporting month that should receive the copy.');return;}
+    if(sourceMonth===targetMonth){alert('Choose a different current month as the destination before copying.');return;}
+    if(!confirm(`Copy ${sourceMonth} into ${targetMonth}? This will replace the current entries for ${targetMonth}.`)) return;
+    const copied=JSON.parse(JSON.stringify(sourceData));
+    copied.month=targetMonth;
+    applyData(copied);
+    save();
+    document.getElementById('archiveStatus').textContent=`Copied ${sourceMonth} into ${targetMonth}. Review and update the figures before submitting.`;
+  });
+  document.getElementById('saveThisMonthBtn').addEventListener('click',saveCurrentMonthToArchive);
+  document.getElementById('deleteArchiveBtn').addEventListener('click',deleteArchivedMonth);
+  document.getElementById('openArchiveBtn').addEventListener('click',()=>{
+    const selected=document.getElementById('archiveMonth').value;
+    if(!selected){alert('There are no archived months to open yet.');return;}
+    if(selected!==monthInput.value && !confirm(`Open ${selected}? Your current month is already saved automatically.`)) return;
+    saveDraftForMonth(activeMonth);
+    loadMonth(selected,true);
+  });
+  monthInput.addEventListener('change',()=>{
+    const selected=monthInput.value;
+    // The month input has already changed, so save the visible form against
+    // the month that was active before the change.
+    if(activeMonth && selected!==activeMonth) saveDraftForMonth(activeMonth);
+    updateDashboardMonthLabel();
+    if(selected) loadMonth(selected,false);
+  });
+  ['congregationName','preparedBy','approvedBy','reportNotes'].forEach(id=>document.getElementById(id).addEventListener('input',save));
+
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    if(!confirm('Clear all group entries, manual records and attendance records for this report? This cannot be undone.')) return;
+    document.querySelectorAll('#groups input[type="number"]').forEach(input=>input.value='');
+    document.querySelectorAll('#attendanceFields input[type="number"]').forEach(input=>input.value='');
+    manualRecords.length=0; renderManualRecords();
+    calculate();
+    try {
+      const cleared=collect();
+      const drafts=getDrafts();
+      drafts[cleared.month]=cleared;
+      localStorage.setItem(draftsKey,JSON.stringify(drafts));
+      localStorage.setItem(storageKey,JSON.stringify(cleared));
+      activeMonth=cleared.month;
+      document.getElementById('saveStatus').textContent='Current entries cleared. Archived reports are unchanged.';
+    } catch(e) {
+      document.getElementById('saveStatus').textContent='Entries cleared from screen, but the draft could not be saved.';
+    }
+    renderCharts();
+  });
+  document.getElementById('exportBtn').addEventListener('click',()=>{
+    const t=getTotals(), attendanceInputs=Array.from({length:5},(_,i)=>document.getElementById(`week-${i+1}`));
+    const attendance=attendanceInputs.map(input=>input.value.trim()===''?null:number(input.value));
+    const enteredAttendance=attendance.filter(value=>value!==null);
+    const rows=[['Group Field Service Report'],['Reporting month',monthInput.value],[],['Group','Category','Number of Reports','Hours','Bible Studies']];
+    for(let g=1;g<=6;g++) for(const cat of categories) {
+      const values=cat.fields.map(([field])=>document.getElementById(`g${g}-${cat.key}-${field}`).value);
+      const row=[`Group ${g}`,cat.title];
+      if(cat.key==='pub') row.push(values[0],'',values[1]);
+      else row.push(values[0],values[1],values[2]);
+      rows.push(row);
+    }
+    if(manualRecords.length) {
+      rows.push([],['Additional manual records'],['Category','Figure','Amount']);
+      manualRecords.forEach(record=>{
+        const category=categories.find(cat=>cat.key===record.category);
+        const label=category.fields.find(([field])=>field===record.field)[1];
+        rows.push([category.title,label,record.value]);
+      });
+    }
+    rows.push([],['Combined totals','Publishers',t.pub.reports,'',t.pub.studies],['Combined totals','Auxiliary Pioneers',t.aux.reports,t.aux.hours,t.aux.studies],['Combined totals','Regular Pioneers',t.reg.reports,t.reg.hours,t.reg.studies],[],['Weekend meeting attendance']);
+    attendance.forEach((v,i)=>rows.push([`Week ${i+1}`,v===null?'':v]));
+    const attendanceTotal=enteredAttendance.reduce((a,b)=>a+b,0);
+    rows.push(['Total attendance',attendanceTotal],['Weeks populated',enteredAttendance.length],['Average attendance',enteredAttendance.length?attendanceTotal/enteredAttendance.length:0]);
+    const csv=rows.map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=`Group_Field_Service_Report_${monthInput.value||'report'}.csv`;a.click();URL.revokeObjectURL(url);
+  });
+  updateManualFigureOptions();
+  load(); calculate(); refreshArchiveList(monthInput.value); updateDashboardMonthLabel(); renderCharts();
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(error => {
+      console.error('Service worker registration failed:', error);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
