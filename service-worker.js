@@ -1,4 +1,4 @@
-const CACHE_NAME = 'group-field-service-report-v3';
+const CACHE_NAME = 'group-field-service-report-v4';
 const APP_SHELL = [
   './',
   './index.html',
