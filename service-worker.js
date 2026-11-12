@@ -1,12 +1,12 @@
-const CACHE_NAME = 'group-field-service-report-v4';
+const CACHE_NAME = 'group-field-service-report-field-icons-v5';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-maskable-512.png',
-  './apple-touch-icon.png'
+  './field-report-icon-192.png',
+  './field-report-icon-512.png',
+  './field-report-maskable-512.png',
+  './field-report-apple-touch-icon.png'
 ];
 
 self.addEventListener('install', event => {
