@@ -1,10 +1,10 @@
 {
-  "id": "./",
+  "id": "/group-field-service-report-pwa-v2",
   "name": "Group Field Service Report",
   "short_name": "Field Report",
   "description": "Group field service reporting and attendance tracker",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/group-field-service-report/",
+  "scope": "/group-field-service-report/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#064341",
@@ -28,5 +28,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
