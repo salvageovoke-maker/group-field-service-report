@@ -1,0 +1,19 @@
+
+{
+  "name": "group-field-service-report-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android APK build wrapper for the Group Field Service Report web app",
+  "scripts": {
+    "build": "echo \"Static web app. Capacitor packages www/ directly.\""
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/assets": "^3.0.5",
+    "typescript": "^5.7.3"
+  }
+}
